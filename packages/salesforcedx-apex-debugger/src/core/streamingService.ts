@@ -120,7 +120,6 @@ export class StreamingService {
               const orgInfo = cmdResult.result as OrgInfo;
               return resolve(orgInfo);
             }
-            // tslint:disable-next-line:no-empty
           } catch (e) {
             reject(outputHolder.getStdOut());
           }
