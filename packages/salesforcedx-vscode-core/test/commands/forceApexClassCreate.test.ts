@@ -9,25 +9,34 @@
 
 import { expect } from 'chai';
 import { Application } from 'spectron';
+import { SpectronApplication } from './application';
+import { CommonActions } from './common';
 
-describe('Test', () => {
-  describe('Spectron', async function(this) {
-    const app = new Application({
-      path: '/Applications/Visual Studio Code.app/Contents/MacOS/Electron',
-      args: [
-        '--skip-getting-started',
-        '--extensions-dir=/Users/james.sweetman/development/salesforcedx-vscode/packages'
-      ],
-      chromeDriverArgs: ['user-data-dir=test_data/temp_user_dir'],
-      startTimeout: 10000
-    });
-
+describe('Integration Test', () => {
+  describe('Force Apex Class Create', async function(this) {
+    const app = new SpectronApplication();
+    const common = new CommonActions(app);
     before(async () => await app.start());
     after(async () => await app.stop());
 
-    it('Shows an initial window', async () => {
-      const count = await app.client.getWindowCount();
-      expect(count).to.equal(1);
+    it('Check that the apex files are created and recently opened', async () => {
+      await app.wait();
+      await app.command('workbench.action.quickOpen');
+      await common.type('>create apex');
+      await app.client.keys(['NULL', 'Enter', 'NULL'], false);
+      await app.wait();
+      const fileName = 'sampleApexClass';
+      await common.type(fileName);
+      await app.client.keys(['NULL', 'Enter', 'NULL'], false);
+      await app.wait();
+      await app.client.keys(['NULL', 'Enter', 'NULL'], false);
+      await app.wait();
+      await app.command('workbench.action.quickOpen');
+      await app.wait();
+      await common.type(fileName);
+      await app.wait();
+      const elCount = await common.getQuickOpenElements();
+      expect(elCount).to.equal(3);
     });
   });
 });
